@@ -11,7 +11,7 @@ const Button = ({ node }) => {
   const getFrame = useStore(state => state.getFrame);
   const handleClick = mesh => {
     const { name } = mesh;
-    const [number] = /\d+/.exec(name);
+    const [number=0] = /\d+/.exec(name) ?? [];
     const { number: storedNumber, active } = getFrame();
     const isSameNumber = storedNumber === +number;
     setFrame(+number, isSameNumber ? !active : true);
@@ -35,12 +35,16 @@ const Button = ({ node }) => {
       onSelect={event => {
         if (event.intersection.distance < 1.5) {
           setPushed(!pushed);
-          handleClick(event.intersection.object)
+          handleClick(event.intersection.object);
         }
       }}
     >
       <Clone
-      //  onPointerDown={handleClick}
+        onPointerDown={e => {
+          console.log(e.object);
+          handleClick(e.object);
+          e.stopPropagation();
+        }}
         ref={button}
         object={node}
         position-y={3.5}
