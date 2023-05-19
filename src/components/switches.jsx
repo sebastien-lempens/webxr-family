@@ -2,9 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { Clone, useGLTF } from "@react-three/drei";
 import { Interactive } from "@react-three/xr";
 import { Color } from "three";
+import { useStore } from "../utils/store";
+
 const Button = ({ node }) => {
   const button = useRef();
   const [pushed, setPushed] = useState(false);
+  const setFrame = useStore(state => state.setFrame);
+  const getFrame = useStore(state => state.getFrame);
+  const handleClick = mesh => {
+    const { name } = mesh;
+    const [number] = /\d+/.exec(name);
+    const { number: storedNumber, active } = getFrame();
+    const isSameNumber = storedNumber === +number;
+    setFrame(+number, isSameNumber ? !active : true);
+    //e.stopPropagation();
+  };
   useEffect(() => {
     const [child] = button.current.children;
     child.material.color = new Color("black");
@@ -20,22 +32,25 @@ const Button = ({ node }) => {
 
   return (
     <Interactive
-      onSelect={({ intersection }) => {
-        if (intersection.distance < 1.5) {
+      onSelect={event => {
+        if (event.intersection.distance < 1.5) {
           setPushed(!pushed);
+          handleClick(event.intersection.object)
         }
       }}
     >
       <Clone
+      //  onPointerDown={handleClick}
         ref={button}
         object={node}
         position-y={3.5}
         inject={<meshStandardMaterial color={"white"} roughness={0.1} metalness={0.5} />}
-      ></Clone>
+      />
     </Interactive>
   );
 };
 const Switches = () => {
+  console.log("%c SWITCHES RENDERED", "color:green;font-weight:bold");
   const { nodes } = useGLTF("scene.gltf");
   const { buttons } = nodes;
   return buttons.children.map(button => <Button key={button.uuid} node={button} />);

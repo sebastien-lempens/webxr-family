@@ -25,18 +25,18 @@ const Scene = () => {
   return (
     <>
       <Physics debug={false}>
-        {console.log("reloaded!")}
+        {console.log("%c SCENE RENDERED",'color:purple;font-weight:bold')}
         <Player />
         <Switches />
         <group>
           <RigidBody type='fixed'>
             <Clone object={wallsCollider} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
-          <Clone object={walls} inject={<meshStandardMaterial {...textureProps} />} />
+          <Clone visible={true} object={walls} inject={<meshStandardMaterial {...textureProps} />} />
           <RigidBody type='fixed'>
             <Clone object={floor} inject={<meshStandardMaterial envMapIntensity={0.15} {...textureProps} />} />
           </RigidBody>
-          <Clone object={roof} inject={<meshStandardMaterial {...textureProps} />} />
+          <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} />} />
           <RigidBody type='fixed'>
             <Clone name='fountain' object={fountain} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
