@@ -6,23 +6,24 @@ import { Player, Switches, Frames, Pedestal, Walls } from "./components";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { buttons, columns, floor, table, frames, framesMask, framesMask2, framesPaint, roof, walls, wallsCollider } = nodes;
-  const [view, normal, metallic, roughness] = useTexture([
-    "textures/texture_2dview.webp",
+  const [base, normal, metallic, roughness] = useTexture([
+    "textures/texture_base.webp",
     "textures/texture_normal.webp",
     "textures/texture_metallic.webp",
     "textures/texture_roughness.webp",
   ]);
-  view.flipY = normal.flipY = metallic.flipY = roughness.flipY = false;
+  base.flipY = normal.flipY = metallic.flipY = roughness.flipY = false;
   const textureProps = {
-    map: view,
-    metalnessMap: null,
-    roughnessMap: null,
-    normalMap: null,
+    map: base,
+    metalnessMap: metallic,
+    roughnessMap: roughness,
+    normalMap: normal,
+    normalScale:[-0.2,0.2]
   };
 
   return (
     <>
-      <Physics debug={true}>
+      <Physics debug={false}>
         {console.log("%c SCENE RENDERED", "color:purple;font-weight:bold")}
         <Player />
         <Switches object={buttons} />
@@ -32,9 +33,9 @@ const Scene = () => {
           </RigidBody>
           <Walls object={walls} textureProps={textureProps} />
           <RigidBody type='fixed'>
-            <Clone object={floor} inject={<meshStandardMaterial envMapIntensity={0.15} {...textureProps} />} />
+            <Clone object={floor} inject={<meshStandardMaterial envMapIntensity={0.35} {...textureProps} />} />
           </RigidBody>
-          <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} />} />
+          <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} normalMap={null} />} />
           <Pedestal object={table} textureProps={textureProps} />
           <RigidBody type='fixed' colliders={false}>
             {columns.children.map(column => (
@@ -48,7 +49,7 @@ const Scene = () => {
         </group>
       </Physics>
       <OrbitControls makeDefault />
-      <Environment frames={5} blur={0} files={"env.hdr"} background />
+      <Environment frames={5} blur={0} preset="sunset"  background />
       <ambientLight intensity={0.4} color={"#fff"} />
       <SpotLight
         visible={true}
@@ -61,7 +62,7 @@ const Scene = () => {
         radiusTop={0}
         radiusBottom={8}
         attenuation={40}
-        intensity={0.2}
+        intensity={0.4}
       />
     </>
   );
