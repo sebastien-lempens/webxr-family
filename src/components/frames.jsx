@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Mask, useMask, useGLTF } from "@react-three/drei";
+import { Mask, useMask, Clone } from "@react-three/drei";
 import { DoubleSide, MathUtils } from "three";
 import { useStore } from "../utils/store";
 
@@ -9,7 +9,7 @@ const FramesGroup = ({ frames, textureProps }) => {
     <group
       name='frameGroup'
       position={[frames.position.x, frames.position.y, frames.position.z]}
-      rotation={[frames.rotation.x, frames.rotation.y - 0.9, frames.rotation.z]}
+      rotation={[frames.rotation.x, frames.rotation.y, frames.rotation.z]}
     >
       {frames.children.map((frame, key) => (
         <mesh
@@ -25,12 +25,12 @@ const FramesGroup = ({ frames, textureProps }) => {
   );
 };
 const FramesMaskGroup = ({ frames }) => {
-  const MASK_POSY_MAX = 7;
+  const [framesMask, framesMask2] = frames;
+  framesMask2.name = "framesMask2";
+  const MASK_POSY_MAX = 6;
   const MASK_POSY_MIN = -0.005;
   const maskGroup = useRef();
-  const { nodes } = useGLTF("masktube.glb");
-  const { Tube: MaskTube } = nodes;
-  MaskTube.name = "MaskTube";
+
   const getFrame = useStore(state => state.getFrame);
   const getFrameByNumber = number => {
     return maskGroup.current.children.filter(frame => {
@@ -38,7 +38,7 @@ const FramesMaskGroup = ({ frames }) => {
       return frameIndex === number;
     });
   };
-  const stencil = useMask(1, true);
+  const stencil = useMask(1, false);
   useFrame((state, delta) => {
     const { number = null, active } = getFrame();
     if (number === null) return;
@@ -63,10 +63,10 @@ const FramesMaskGroup = ({ frames }) => {
     <>
       <group
         ref={maskGroup}
-        position={[frames.position.x, frames.position.y, frames.position.z]}
-        rotation={[frames.rotation.x, frames.rotation.y - 0.9, frames.rotation.z]}
+        position={[framesMask.position.x, framesMask.position.y, framesMask.position.z]}
+        rotation={[framesMask.rotation.x, framesMask.rotation.y, framesMask.rotation.z]}
       >
-        {frames.children.map((frame, key) => (
+        {framesMask.children.map((frame, key) => (
           <mesh
             key={`frame-${key}`}
             name={`frame-${key}`}
@@ -79,7 +79,15 @@ const FramesMaskGroup = ({ frames }) => {
           </mesh>
         ))}
       </group>
-      <Mask id={1} geometry={MaskTube.geometry} position-y={11.6} />
+      <Clone
+        visible={false}
+        position-y={7.6}
+        object={framesMask2}
+        inject={<meshBasicMaterial transparent opacity={0.5} side={DoubleSide} />}
+      ></Clone>
+      <Mask id={1} geometry={framesMask2.geometry} position-y={7.6}>
+        <meshBasicMaterial side={DoubleSide} />
+      </Mask>
     </>
   );
 };
@@ -87,7 +95,7 @@ const FramesPaintGroup = ({ frames }) => {
   return (
     <group
       position={[frames.position.x, frames.position.y, frames.position.z]}
-      rotation={[frames.rotation.x, frames.rotation.y - 0.9, frames.rotation.z]}
+      rotation={[frames.rotation.x, frames.rotation.y, frames.rotation.z]}
     >
       {frames.children.map((frame, key) => (
         <mesh
@@ -102,15 +110,19 @@ const FramesPaintGroup = ({ frames }) => {
     </group>
   );
 };
-const Frames = ({ frames: frameNodes, textureProps }) => {
-  const [frames, framesMask, framesPaint] = frameNodes;
+const Frames = ({ object, textureProps }) => {
+  const [frames, framesMask, framesMask2, framesPaint] = object;
+  const ref = useRef()
+  useFrame(()=>{
+    ref.current.rotation.y+=0.001
+  })
 
   return (
-    <>
+    <group ref={ref}>
       <FramesGroup frames={frames} textureProps={textureProps} />
-      <FramesMaskGroup frames={framesMask} />
+      <FramesMaskGroup frames={[framesMask, framesMask2]} />
       <FramesPaintGroup frames={framesPaint} />
-    </>
+    </group>
   );
 };
 

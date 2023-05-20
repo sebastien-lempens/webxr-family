@@ -26,6 +26,7 @@ function Player() {
     rigidBodyApi.current.setLinvel(player.position); // 3. Copy player position to the RigidBody's Linear Velocity
     player.position.copy(rigidBodyApi.current.translation()); //4 Tie again RigidBody's Linear Velocity to the Player Object3D
     player.translateX(0.6); //5 Fix Center Player / Rigidbody position
+    player.translateZ(-0.9); //5 Fix Center Player / Rigidbody position
   });
 
   return (

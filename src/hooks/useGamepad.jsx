@@ -15,8 +15,8 @@ function useGamepad() {
   const userData = {
     position: new Vector3(),
     rotation: new Euler(),
-    walkSpeed: 10,
-    rotationAngle: MathUtils.degToRad(45),
+    walkSpeed: 6,
+    rotationAngle: MathUtils.degToRad(25),
   };
 
   const gamePadPositionRef = useRef(userData.position);

@@ -1,13 +1,11 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, SpotLight, useGLTF, Clone, Environment, useTexture } from "@react-three/drei";
-import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
+import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
-import { Player } from "./components/Player";
-import { Switches } from "./components/switches";
-import { Frames } from "./components/frames";
+import { Player, Switches, Frames, Pedestal, Walls } from "./components";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
-  const { columns, floor, fountain, frames, framesMask, framesPaint, roof, walls, wallsCollider } = nodes;
+  const { buttons, columns, floor, table, frames, framesMask, framesMask2, framesPaint, roof, walls, wallsCollider } = nodes;
   const [view, normal, metallic, roughness] = useTexture([
     "textures/texture_2dview.webp",
     "textures/texture_normal.webp",
@@ -17,43 +15,41 @@ const Scene = () => {
   view.flipY = normal.flipY = metallic.flipY = roughness.flipY = false;
   const textureProps = {
     map: view,
-    metalnessMap: metallic,
-    roughnessMap: roughness,
-    normalMap: normal,
+    metalnessMap: null,
+    roughnessMap: null,
+    normalMap: null,
   };
 
   return (
     <>
-      <Physics debug={false}>
-        {console.log("%c SCENE RENDERED",'color:purple;font-weight:bold')}
+      <Physics debug={true}>
+        {console.log("%c SCENE RENDERED", "color:purple;font-weight:bold")}
         <Player />
-        <Switches />
+        <Switches object={buttons} />
         <group>
           <RigidBody type='fixed'>
             <Clone object={wallsCollider} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
-          <Clone visible={true} object={walls} inject={<meshStandardMaterial {...textureProps} />} />
+          <Walls object={walls} textureProps={textureProps} />
           <RigidBody type='fixed'>
             <Clone object={floor} inject={<meshStandardMaterial envMapIntensity={0.15} {...textureProps} />} />
           </RigidBody>
           <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} />} />
-          <RigidBody type='fixed'>
-            <Clone name='fountain' object={fountain} inject={<meshStandardMaterial {...textureProps} />} />
-          </RigidBody>
+          <Pedestal object={table} textureProps={textureProps} />
           <RigidBody type='fixed' colliders={false}>
             {columns.children.map(column => (
               <group key={column.uuid}>
-                <CuboidCollider args={[1, 1, 1]} position={[column.position.x, 0, column.position.z]} />
+                <CuboidCollider args={[0.8, 0.8, 0.8]} position={[column.position.x, 0, column.position.z]} />
                 <Clone name='column' object={column} inject={<meshStandardMaterial {...textureProps} />} />
               </group>
             ))}
           </RigidBody>
-          <Frames frames={[frames, framesMask, framesPaint]} textureProps={textureProps} />
+          <Frames object={[frames, framesMask, framesMask2, framesPaint]} textureProps={textureProps} />
         </group>
       </Physics>
       <OrbitControls makeDefault />
       <Environment frames={5} blur={0} files={"env.hdr"} background />
-      <ambientLight intensity={0.2} color={"#fff"} />
+      <ambientLight intensity={0.4} color={"#fff"} />
       <SpotLight
         visible={true}
         color={"#fff"}

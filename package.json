@@ -17,7 +17,6 @@
   "dependencies": {
     "@react-three/drei": "^9.57.0",
     "@react-three/fiber": "^8.11.9",
-    "@react-three/postprocessing": "^2.11.0",
     "@react-three/rapier": "^0.15.1",
     "@react-three/xr": "^5.5.0",
     "gltfjsx": "^6.1.4",
