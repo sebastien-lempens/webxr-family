@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 const Walls = ({ object, textureProps }) => {
   const ref = useRef();
   useFrame(() => {
-    ref.current.rotation.y += 0.001;
+   // ref.current.rotation.y += 0.001;
   });
   return <Clone ref={ref} visible={true} object={object} inject={<meshStandardMaterial {...textureProps} />} />;
 };

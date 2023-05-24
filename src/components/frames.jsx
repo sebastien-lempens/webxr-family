@@ -114,7 +114,7 @@ const Frames = ({ object, textureProps }) => {
   const [frames, framesMask, framesMask2, framesPaint] = object;
   const ref = useRef();
   useFrame(() => {
-    ref.current.rotation.y += 0.001;
+   // ref.current.rotation.y += 0.001;
   });
 
   return (

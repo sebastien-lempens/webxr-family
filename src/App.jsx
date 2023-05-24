@@ -1,15 +1,18 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, SpotLight, useGLTF, Clone, Environment, useTexture, CubeCamera } from "@react-three/drei";
+import { Canvas, useThree } from "@react-three/fiber";
+import { OrbitControls, SpotLight, useGLTF, Clone, Environment, useTexture, CubeCamera, Box } from "@react-three/drei";
 import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Switches, Frames, Pedestal, Walls } from "./components";
-import { RepeatWrapping, SRGBColorSpace, ColorManagement } from "three";
+import { WebGLCubeRenderTarget, AdditiveBlending, MaxEquation } from "three";
+import { useRef } from "react";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { gl } = useThree();
+  const cubeCamera = useRef();
+  const renderTarget = new WebGLCubeRenderTarget(1024);
   const { buttons, columns, floor, table, letters, frames, framesMask, framesMask2, framesPaint, roof, walls, wallsCollider } = nodes;
   const [base, normal, metallic, roughness] = useTexture([
-    "textures/texture_base.jpg",
+    "textures/texture_base.jpg?001",
     "textures/texture_normal.webp",
     "textures/texture_metallic.webp",
     "textures/texture_roughness.webp",
@@ -21,10 +24,10 @@ const Scene = () => {
     metalnessMap: metallic,
     roughnessMap: roughness,
     normalMap: normal,
-    normalScale:[0.25,0.25],
-    toneMapped: false,
-    envMapIntensity:0.4
+    toneMapped: true,
   };
+  gl.toneMapping = 1;
+  gl.toneMappingExposure = 0.35;
 
   return (
     <>
@@ -32,6 +35,7 @@ const Scene = () => {
         {console.log("%c SCENE RENDERED", "color:purple;font-weight:bold")}
         <Player />
         <Switches object={buttons} />
+
         <group>
           <RigidBody type='fixed'>
             <Clone object={wallsCollider} inject={<meshStandardMaterial {...textureProps} />} />
@@ -40,8 +44,17 @@ const Scene = () => {
           <RigidBody type='fixed'>
             <Clone object={floor} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
-          <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} />} />
-          <Clone object={letters} inject={<meshStandardMaterial metalness={1} roughness={0.3} />} />
+          <Clone visible={true} object={roof} inject={<meshStandardMaterial   {...textureProps} />} />
+          <CubeCamera frames={1} position={[0, 0, -5]}>
+            {texture => (
+              <Clone
+                position-z={4.5}
+                position-y={8.1}
+                object={letters}
+                inject={<meshStandardMaterial envMap={texture} metalness={1} roughness={0} />}
+              />
+            )}
+          </CubeCamera>
           <Pedestal object={table} textureProps={textureProps} />
           <RigidBody type='fixed' colliders={false}>
             {columns.children.map(column => (
@@ -55,21 +68,38 @@ const Scene = () => {
         </group>
       </Physics>
       <OrbitControls makeDefault />
-      
-      <ambientLight intensity={0.8} />
-      <Environment frames={1} background files='outdoor.hdr' />
+      <ambientLight intensity={1.5} />
+      <Environment frames={1} resolution={256} files={"outdoor.hdr"} />
+      <CubeCamera frames={1} scale={0.012} position={[0, 0.8, 0]}>
+        {texture => {
+          console.log(texture);
+          return (
+            <Box args={[2400, 0.01, 2400]} position-y={-60}>
+              <meshStandardMaterial
+                envMap={texture}
+                roughness={0}
+                transparent
+                opacity={0.5}
+                blending={AdditiveBlending}
+                blendEquation={MaxEquation}
+                metalness={1}
+              />
+            </Box>
+          );
+        }}
+      </CubeCamera>
       <SpotLight
         visible={true}
         color={"white"}
         castShadow
         position={[-8, 30, -8]}
-        distance={60}
-        angle={0.1}
+        distance={50}
+        angle={0.25}
         anglePower={4}
         radiusTop={0}
         radiusBottom={7}
-        attenuation={50}
-        intensity={0.2}
+        attenuation={40}
+        intensity={0}
       />
     </>
   );
