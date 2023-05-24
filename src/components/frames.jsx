@@ -75,7 +75,7 @@ const FramesMaskGroup = ({ frames }) => {
             rotation={[frame.rotation.x, frame.rotation.y, frame.rotation.z]}
             userData={{ frameIndex: key, framePosition: 0, frameStatus: null, frameActive: false }}
           >
-            <meshBasicMaterial color={"yellow"} side={DoubleSide} {...stencil} />
+            <meshBasicMaterial color={"darkgray"} side={DoubleSide} {...stencil} />
           </mesh>
         ))}
       </group>
@@ -112,10 +112,10 @@ const FramesPaintGroup = ({ frames }) => {
 };
 const Frames = ({ object, textureProps }) => {
   const [frames, framesMask, framesMask2, framesPaint] = object;
-  const ref = useRef()
-  useFrame(()=>{
-    ref.current.rotation.y+=0.001
-  })
+  const ref = useRef();
+  useFrame(() => {
+    ref.current.rotation.y += 0.001;
+  });
 
   return (
     <group ref={ref}>

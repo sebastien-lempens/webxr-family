@@ -6,6 +6,6 @@ const Walls = ({ object, textureProps }) => {
   useFrame(() => {
     ref.current.rotation.y += 0.001;
   });
-  return <Clone ref={ref} visible={true} object={object} inject={<meshStandardMaterial   {...textureProps} />} />;
+  return <Clone ref={ref} visible={true} object={object} inject={<meshStandardMaterial {...textureProps} />} />;
 };
 export { Walls };
