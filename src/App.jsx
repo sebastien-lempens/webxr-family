@@ -3,22 +3,19 @@ import { OrbitControls, SpotLight, useGLTF, Clone, Environment, useTexture, Cube
 import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Switches, Frames, Pedestal, Walls } from "./components";
-import { WebGLCubeRenderTarget, AdditiveBlending, MaxEquation } from "three";
-import { useRef } from "react";
+import { AdditiveBlending, MaxEquation } from "three";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { gl } = useThree();
-  const cubeCamera = useRef();
-  const renderTarget = new WebGLCubeRenderTarget(1024);
   const { buttons, columns, floor, table, letters, frames, framesMask, framesMask2, framesPaint, roof, walls, wallsCollider } = nodes;
   const [base, normal, metallic, roughness] = useTexture([
-    "textures/texture_base.jpg?001",
+    "textures/texture_base.jpg",
     "textures/texture_normal.webp",
     "textures/texture_metallic.webp",
     "textures/texture_roughness.webp",
   ]);
   base.flipY = normal.flipY = metallic.flipY = roughness.flipY = false;
-  //  base.repeat.y = -1
+
   const textureProps = {
     map: base,
     metalnessMap: metallic,
@@ -27,7 +24,7 @@ const Scene = () => {
     toneMapped: true,
   };
   gl.toneMapping = 1;
-  gl.toneMappingExposure = 0.35;
+  gl.toneMappingExposure = 0.2;
 
   return (
     <>
@@ -44,7 +41,7 @@ const Scene = () => {
           <RigidBody type='fixed'>
             <Clone object={floor} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
-          <Clone visible={true} object={roof} inject={<meshStandardMaterial   {...textureProps} />} />
+          <Clone visible={true} object={roof} inject={<meshStandardMaterial {...textureProps} />} />
           <CubeCamera frames={1} position={[0, 0, -5]}>
             {texture => (
               <Clone
@@ -70,7 +67,7 @@ const Scene = () => {
       <OrbitControls makeDefault />
       <ambientLight intensity={1.5} />
       <Environment frames={1} resolution={256} files={"outdoor.hdr"} />
-      <CubeCamera frames={1} scale={0.012} position={[0, 0.8, 0]}>
+      <CubeCamera visible={false} frames={1} scale={0.012} position={[0, 0.8, 0]}>
         {texture => {
           console.log(texture);
           return (
