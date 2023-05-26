@@ -13,9 +13,20 @@ const Pedestal = ({ object, textureProps }) => {
   return (
     <RigidBody type='fixed' colliders={false}>
       <CapsuleCollider args={[1.5, 1.5]} position={[0, 2, 0]} />
-      <CubeCamera frames={1} position={[0, 0, 0]}>
-        {texture => <Clone ref={ref} name='table' object={object} inject={<meshStandardMaterial roughness={0.5} envMapIntensity={5} envMap={texture} {...textureProps} />} />}
+      <CubeCamera frames={1} position={[0, 5, 0]}>
+        {texture => {
+          return (
+            <Clone
+              ref={ref}
+              name='table'
+              object={object}
+              position-y={-1.9}
+              inject={<meshStandardMaterial roughness={0.3} metalness={0.8} envMapIntensity={0.2} envMap={texture} {...textureProps} />}
+            />
+          );
+        }}
       </CubeCamera>
+      <spotLight position={[0, 8, 0]} />
     </RigidBody>
   );
 };
