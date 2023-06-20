@@ -1,25 +1,14 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import {
-  OrbitControls,
-  SpotLight,
-  useGLTF,
-  Clone,
-  Environment,
-  useTexture,
-  CubeCamera,
-  Box,
-  useBoxProjectedEnv,
-  Sphere,
-} from "@react-three/drei";
+import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera } from "@react-three/drei";
 import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
-import { Player, Switches, Frames, Pedestal, Walls } from "./components";
-import { AdditiveBlending, Color, DoubleSide, MaxEquation } from "three";
+import { Player, Frames, Pedestal, Walls } from "./components";
+import { Color } from "three";
 import { useControls } from "leva";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { gl, scene } = useThree();
-  const { buttons, columns, floor, table, letters, frames, framesMask, framesMask2, framesPaint, roof, walls, wallsCollider } = nodes;
+  const { buttons, columns, floor, table, letters, frames, framesPaint, roof, walls, wallsCollider } = nodes;
   const [base, normal, metallic, roughness] = useTexture([
     "textures/texture_base.jpg",
     "textures/texture_normal.webp",
@@ -43,7 +32,6 @@ const Scene = () => {
       <Physics debug={false}>
         {console.log("%c SCENE RENDERED", "color:purple;font-weight:bold")}
         <Player />
-        <Switches object={buttons} />
         <group>
           <RigidBody type='fixed'>
             <Clone object={wallsCollider} inject={<meshStandardMaterial {...textureProps} />} />
@@ -58,14 +46,7 @@ const Scene = () => {
                 visible={true}
                 object={roof}
                 position-y={9.56}
-                inject={
-                  <meshStandardMaterial
-                    envMap={texture}
-                    envMapIntensity={2}
-                    normalScale={[0.5, -0.5]}
-                    {...textureProps}
-                  />
-                }
+                inject={<meshStandardMaterial envMap={texture} envMapIntensity={2} normalScale={[0.5, -0.5]} {...textureProps} />}
               />
             )}
           </CubeCamera>
@@ -90,7 +71,7 @@ const Scene = () => {
               </group>
             ))}
           </RigidBody>
-          <Frames object={[frames, framesMask, framesMask2, framesPaint]} textureProps={textureProps} />
+          <Frames object={[frames, framesPaint]} textureProps={textureProps} />
         </group>
       </Physics>
 
@@ -119,7 +100,7 @@ const App = () => {
       <VRButton />
       <Canvas>
         <XR>
-          {/* <Controllers /> */}
+          <Controllers />
           <Scene />
         </XR>
       </Canvas>

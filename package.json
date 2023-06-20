@@ -15,7 +15,7 @@
   "repository": "github:sebastien-lempens/react-three-vite",
   "license": "MIT",
   "dependencies": {
-    "@react-three/drei": "^9.57.0",
+    "@react-three/drei": "^9.77.0",
     "@react-three/fiber": "^8.11.9",
     "@react-three/rapier": "^0.15.1",
     "@react-three/xr": "^5.5.0",
