@@ -1,5 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera } from "@react-three/drei";
+import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera, Sparkles } from "@react-three/drei";
 import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Frames, Pedestal, Walls } from "./components";
@@ -8,7 +8,7 @@ import { useControls } from "leva";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { gl, scene } = useThree();
-  const { buttons, columns, floor, table, letters, frames, framesPaint, roof, walls, wallsCollider } = nodes;
+  const { columns, floor, table, letters, frames, framesPaint, roof, walls, wallsCollider } = nodes;
   const [base, normal, metallic, roughness] = useTexture([
     "textures/texture_base.jpg",
     "textures/texture_normal.webp",
@@ -76,6 +76,7 @@ const Scene = () => {
       </Physics>
 
       <OrbitControls makeDefault />
+      <Sparkles count={800} scale={15} size={.5} speed={0.6} position-y={5} />
       <ambientLight color={"#edddc7"} intensity={0.6} />
       <SpotLight
         visible={true}
@@ -98,7 +99,7 @@ const App = () => {
   return (
     <>
       <VRButton />
-      <Canvas>
+      <Canvas gl={{ localClippingEnabled: true }}>
         <XR>
           <Controllers />
           <Scene />

@@ -1,7 +1,7 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { applyProps, useFrame } from "@react-three/fiber";
-import { MeshPortalMaterial, Plane, useTexture, useAspect } from "@react-three/drei";
-import { DoubleSide, MathUtils } from "three";
+import { Plane, useTexture, useAspect } from "@react-three/drei";
+import { DoubleSide, MathUtils, Plane as ThreePlane, Vector3 } from "three";
 import { Interactive } from "@react-three/xr";
 
 const FramesGroup = ({ frames, textureProps }) => {
@@ -26,25 +26,25 @@ const FramesGroup = ({ frames, textureProps }) => {
 };
 
 const Frame = ({ frame }) => {
-  const MAXPOS = 7;
-  const MINPOS = 0.01;
   const sliderRef = useRef(null);
-  //const {frameNumber} = frame.userData
+  const sliderRefMaterial = useRef(null);
   const { frameNumber } = { frameNumber: "00" };
   const texture = useTexture(`textures/family-portrait-${frameNumber}.jpg`);
-  const scale = useAspect(1024, 1024, 0.35);
+  const scale = useAspect(1024, 860, 0.35);
+  let zTopMaskPlaneNormal = useMemo(() => new Vector3(0, -1, 0), []);
+  const zTopMaskPlane = useMemo(() => new ThreePlane(zTopMaskPlaneNormal, 1), []);
+  if (sliderRefMaterial.current) {
+    zTopMaskPlane.applyMatrix4(sliderRef.current.matrixWorld);
+    sliderRefMaterial.current.clippingPlanes = [zTopMaskPlane];
+  }
   useFrame((_, delta) => {
-    frame.userData.slidePosition = MathUtils.clamp(
-      MathUtils.lerp(frame.userData.slidePosition, frame.userData.opened ? MAXPOS : MINPOS, delta),
-      MINPOS,
-      MAXPOS
-    );
-    sliderRef.current.position.y = frame.userData.slidePosition;
+    if (!sliderRefMaterial.current) return;
+    sliderRef.current.position.y = MathUtils.lerp(sliderRef.current.position.y, frame.userData.opened ? 6 : 0, delta);
   });
   return (
     <>
-      <Plane ref={sliderRef} args={[1, 2]} scale={3.5} rotation-y={-Math.PI / 2}>
-        <meshBasicMaterial color={"grey"} />
+      <Plane ref={sliderRef} args={[1, 2]} scale={scale} rotation-y={-Math.PI / 2}>
+        <meshBasicMaterial ref={sliderRefMaterial} color={"grey"} side={DoubleSide} clippingPlanes={[zTopMaskPlane]} />
       </Plane>
       <Plane args={[1, 2]} scale={scale} rotation-y={-Math.PI / 2}>
         <meshBasicMaterial map={texture} polygonOffset polygonOffsetFactor={1} />
@@ -60,22 +60,19 @@ const FramesPaintGroup = ({ frames }) => {
       rotation={[frames.rotation.x, frames.rotation.y, frames.rotation.z]}
     >
       {frames.children.map((frame, key) => (
-        <Interactive
+        <group
           key={`frame-${key}`}
-          onSelect={e => {
-            frame.userData.opened = !frame.userData.opened;
-          }}
+          position={[...Object.values(frame.position)]}
+          rotation={[frame.rotation.x, frame.rotation.y, frame.rotation.z]}
         >
-          <mesh
-            geometry={frame.geometry}
-            position={[...Object.values(frame.position)]}
-            rotation={[frame.rotation.x, frame.rotation.y, frame.rotation.z]}
+          <Interactive
+            onSelect={e => {
+              frame.userData.opened = !frame.userData.opened;
+            }}
           >
-            <MeshPortalMaterial side={DoubleSide}>
-              <Frame frame={frame} />
-            </MeshPortalMaterial>
-          </mesh>
-        </Interactive>
+            <Frame frame={frame} />
+          </Interactive>
+        </group>
       ))}
     </group>
   );
