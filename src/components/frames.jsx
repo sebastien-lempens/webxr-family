@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { applyProps, useFrame } from "@react-three/fiber";
-import { Plane, useTexture, useAspect } from "@react-three/drei";
+import { Plane, useTexture, useAspect, Clone } from "@react-three/drei";
 import { DoubleSide, MathUtils, Plane as ThreePlane, Vector3 } from "three";
 import { Interactive } from "@react-three/xr";
 
@@ -26,11 +26,12 @@ const FramesGroup = ({ frames, textureProps }) => {
 };
 
 const Frame = ({ frame }) => {
+  console.log(frame.userData.frameNumber);
   const sliderRef = useRef(null);
   const sliderRefMaterial = useRef(null);
-  const { frameNumber } = { frameNumber: "00" };
+  const { frameNumber } = { frameNumber: frame.userData.frameNumber };
   const texture = useTexture(`textures/family-portrait-${frameNumber}.jpg`);
-  const scale = useAspect(1024, 860, 0.35);
+  const scale = useAspect(1024, 830, 0.33);
   let zTopMaskPlaneNormal = useMemo(() => new Vector3(0, -1, 0), []);
   const zTopMaskPlane = useMemo(() => new ThreePlane(zTopMaskPlaneNormal, 1), []);
   if (sliderRefMaterial.current) {
@@ -85,7 +86,8 @@ const Frames = ({ object, textureProps }) => {
   });
   return (
     <group>
-      <FramesGroup frames={frames} textureProps={textureProps} />
+      {/* <FramesGroup frames={frames} textureProps={textureProps} /> */}
+      <Clone object={frames} inject={<meshStandardMaterial {...textureProps} />} />
       <FramesPaintGroup frames={framesPaint} />
     </group>
   );

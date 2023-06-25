@@ -1,5 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera, Sparkles } from "@react-three/drei";
+import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera, Sparkles, Environment } from "@react-three/drei";
 import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Frames, Pedestal, Walls } from "./components";
@@ -8,7 +8,7 @@ import { useControls } from "leva";
 const Scene = () => {
   const { nodes } = useGLTF("scene.gltf");
   const { gl, scene } = useThree();
-  const { columns, floor, table, letters, frames, framesPaint, roof, walls, wallsCollider } = nodes;
+  const { columns, floor, fountain, plants, letters, frames, framesPaint, roof, walls, wallsCollider } = nodes;
   const [base, normal, metallic, roughness] = useTexture([
     "textures/texture_base.jpg",
     "textures/texture_normal.webp",
@@ -19,13 +19,13 @@ const Scene = () => {
   scene.background = new Color("skyblue");
   const textureProps = {
     map: base,
-    metalnessMap: metallic,
-    roughnessMap: roughness,
-    normalMap: normal,
+    //  metalnessMap: metallic,
+    // roughnessMap: roughness,
+    //  normalMap: normal,
     toneMapped: true,
   };
   gl.toneMapping = 1;
-  gl.toneMappingExposure = 1.2;
+  gl.toneMappingExposure = 2.4;
 
   return (
     <>
@@ -34,21 +34,18 @@ const Scene = () => {
         <Player />
         <group>
           <RigidBody type='fixed'>
-            <Clone object={wallsCollider} inject={<meshStandardMaterial {...textureProps} />} />
+            <Clone object={wallsCollider} />
           </RigidBody>
           <Walls object={walls} textureProps={textureProps} />
+          <RigidBody type='fixed'>
+            <Clone object={fountain} inject={<meshStandardMaterial {...textureProps} />} />
+          </RigidBody>
+          <Clone object={plants} inject={<meshStandardMaterial {...textureProps} />} />
           <RigidBody type='fixed'>
             <Clone object={floor} inject={<meshStandardMaterial {...textureProps} />} />
           </RigidBody>
           <CubeCamera frames={1} position={[0, 5, 0]}>
-            {texture => (
-              <Clone
-                visible={true}
-                object={roof}
-                position-y={9.56}
-                inject={<meshStandardMaterial envMap={texture} envMapIntensity={2} normalScale={[0.5, -0.5]} {...textureProps} />}
-              />
-            )}
+            {texture => <Clone visible={true} object={roof} position-y={9.56} inject={<meshStandardMaterial {...textureProps} />} />}
           </CubeCamera>
           <CubeCamera frames={1} position={[0, 5, -5]}>
             {texture => {
@@ -57,12 +54,12 @@ const Scene = () => {
                   position-z={4.5}
                   position-y={3.1}
                   object={letters}
-                  inject={<meshStandardMaterial envMap={texture} metalness={1} roughness={0} />}
+                  inject={<meshStandardMaterial envMap={texture} envMapIntensity={3} metalness={0} roughness={0} {...textureProps} />}
                 />
               );
             }}
           </CubeCamera>
-          <Pedestal object={table} textureProps={textureProps} />
+          {/* <Pedestal object={table} textureProps={textureProps} /> */}
           <RigidBody type='fixed' colliders={false}>
             {columns.children.map(column => (
               <group key={column.uuid}>
@@ -76,11 +73,12 @@ const Scene = () => {
       </Physics>
 
       <OrbitControls makeDefault />
-      <Sparkles count={800} scale={15} size={.5} speed={0.6} position-y={5} />
-      <ambientLight color={"#edddc7"} intensity={0.6} />
+      <Environment frames={1} files={'outdoor.hdr'}   />
+      <Sparkles count={800} scale={15} size={0.5} speed={0.6} position-y={5} />
+      <ambientLight color={"#fff0cf"} intensity={.8} />
       <SpotLight
         visible={true}
-        color={"white"}
+        color={"#fff0cf"}
         castShadow
         position={[-8, 30, -8]}
         distance={50}
