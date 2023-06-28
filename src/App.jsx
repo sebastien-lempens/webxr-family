@@ -28,7 +28,7 @@ const Scene = () => {
     side: DoubleSide,
   };
   gl.toneMapping = 1;
-  gl.toneMappingExposure = 1.8;
+  gl.toneMappingExposure = 2.4;
 
   return (
     <>
@@ -78,7 +78,7 @@ const Scene = () => {
 
       <OrbitControls makeDefault />
       <Sparkles count={800} scale={15} size={0.5} speed={0.6} position-y={5} />
-      <ambientLight color={"#fff"} intensity={1.2} />
+      <ambientLight color={"#fff"} intensity={1.} />
       <SpotLight
         visible={true}
         color={"#fff"}
