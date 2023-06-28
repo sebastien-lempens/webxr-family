@@ -65,7 +65,7 @@ const Frames = ({ object, textureProps }) => {
   });
   return (
     <group>
-      <Clone object={frames} inject={<meshStandardMaterial {...textureProps} />} />
+      <Clone object={frames} inject={<meshStandardMaterial roughness={0} metalness={0.5} envMapIntensity={2} {...textureProps} />} />
       <FramesPaintGroup frames={framesPaint} />
     </group>
   );
