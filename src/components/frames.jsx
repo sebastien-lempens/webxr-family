@@ -4,33 +4,12 @@ import { Plane, useTexture, useAspect, Clone } from "@react-three/drei";
 import { DoubleSide, MathUtils, Plane as ThreePlane, Vector3 } from "three";
 import { Interactive } from "@react-three/xr";
 
-const FramesGroup = ({ frames, textureProps }) => {
-  return (
-    <group
-      name='frameGroup'
-      position={[frames.position.x, frames.position.y, frames.position.z]}
-      rotation={[frames.rotation.x, frames.rotation.y, frames.rotation.z]}
-    >
-      {frames.children.map((frame, key) => (
-        <mesh
-          key={`frame-${key}`}
-          geometry={frame.geometry}
-          position={[...Object.values(frame.position)]}
-          rotation={[frame.rotation.x, frame.rotation.y, frame.rotation.z]}
-        >
-          <meshStandardMaterial {...textureProps} />
-        </mesh>
-      ))}
-    </group>
-  );
-};
-
 const Frame = ({ frame }) => {
-  console.log(frame.userData.frameNumber);
   const sliderRef = useRef(null);
   const sliderRefMaterial = useRef(null);
   const { frameNumber } = { frameNumber: frame.userData.frameNumber };
   const texture = useTexture(`textures/family-portrait-${frameNumber}.jpg`);
+  const textureName = useTexture(`textures/family-name-00.jpg`);
   const scale = useAspect(1024, 830, 0.33);
   let zTopMaskPlaneNormal = useMemo(() => new Vector3(0, -1, 0), []);
   const zTopMaskPlane = useMemo(() => new ThreePlane(zTopMaskPlaneNormal, 1), []);
@@ -45,10 +24,10 @@ const Frame = ({ frame }) => {
   return (
     <>
       <Plane ref={sliderRef} args={[1, 2]} scale={scale} rotation-y={-Math.PI / 2}>
-        <meshBasicMaterial ref={sliderRefMaterial} color={"grey"} side={DoubleSide} clippingPlanes={[zTopMaskPlane]} />
+        <meshStandardMaterial ref={sliderRefMaterial} map={textureName} metalness={0.7} roughness={1} clippingPlanes={[zTopMaskPlane]} />
       </Plane>
       <Plane args={[1, 2]} scale={scale} rotation-y={-Math.PI / 2}>
-        <meshBasicMaterial map={texture} polygonOffset polygonOffsetFactor={1} />
+        <meshBasicMaterial map={texture} polygonOffset polygonOffsetFactor={2} />
       </Plane>
     </>
   );
@@ -86,7 +65,6 @@ const Frames = ({ object, textureProps }) => {
   });
   return (
     <group>
-      {/* <FramesGroup frames={frames} textureProps={textureProps} /> */}
       <Clone object={frames} inject={<meshStandardMaterial {...textureProps} />} />
       <FramesPaintGroup frames={framesPaint} />
     </group>
