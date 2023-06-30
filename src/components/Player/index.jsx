@@ -17,7 +17,7 @@ function Player() {
 
   controllerLeft.addEventListener("connected", () => {
     controllerRight.addEventListener("connected", () => {
-      setOnLoadControllers(true);
+     // setOnLoadControllers(true);
     });
   });
   useFrame(() => {

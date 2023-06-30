@@ -1,16 +1,14 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, SpotLight, useGLTF, Clone, useTexture, CubeCamera, Sky, Sparkles, Environment } from "@react-three/drei";
-import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
+import { OrbitControls, useGLTF, Clone, useTexture, Sky, Sparkles, Environment } from "@react-three/drei";
+import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
-import { Player, Frames, Walls } from "./components";
-import { Color, DoubleSide, RepeatWrapping, Vector3 } from "three";
-import { useControls } from "leva";
+import { Player, Frames, Walls, Lightrays } from "./components";
+import { DoubleSide } from "three";
 const Scene = () => {
-  const { nodes } = useGLTF("scene.gltf");
-  const { gl, scene } = useThree();
-  const { beach, columns, floor, frames, framesPaint, letters, palmtree, plants, roof, sand, walls, wallsCollider } = nodes;
-  const [floorNormal] = useTexture(["textures/normal/floor.webp"]);
-  floorNormal.flipY = false;
+  const { nodes } = useGLTF("scene.glb");
+  const { gl } = useThree();
+  const { beach, columns, columnColliders, floor, frames, framesPaint, letters, palmtree, plants, roof, sand, walls, wallsCollider } =
+    nodes;
   const [beachRoughness, columnRoughness, plantRoughness, roofRoughness] = useTexture([
     "textures/roughness/beach.webp",
     "textures/roughness/column.webp",
@@ -26,7 +24,7 @@ const Scene = () => {
     side: DoubleSide,
   };
   gl.toneMapping = 1;
-  gl.toneMappingExposure = 2.4;
+  gl.toneMappingExposure = 2.6;
 
   return (
     <>
@@ -53,15 +51,7 @@ const Scene = () => {
           <Clone object={palmtree} inject={<meshStandardMaterial {...textureProps} />} />
           {/* ----------- FLOOR ------------ */}
           <RigidBody type='fixed' colliders={false}>
-          <Clone
-                  object={floor}
-                  inject={
-                    <meshStandardMaterial
-                      
-                      {...textureProps}
-                    />
-                  }
-                />
+            <Clone object={floor} inject={<meshStandardMaterial {...textureProps} />} />
             <CuboidCollider args={[15, 0.05, 15]} position={[0, 0, 0]} />
           </RigidBody>
           {/* ----------- ROOF ------------ */}
@@ -70,11 +60,9 @@ const Scene = () => {
           <Clone object={letters} inject={<meshStandardMaterial envMapIntensity={2} roughness={0} metalness={1} {...textureProps} />} />
           {/* ----------- COLUMNS ------------ */}
           <RigidBody type='fixed' colliders={false}>
-            {columns.children.map(column => (
-              <group key={column.uuid} rotation-y={-1.35}>
-                <Clone name='column' object={column} inject={<meshStandardMaterial roughnessMap={columnRoughness} {...textureProps} />} />
-                <CuboidCollider args={[0.8, 0.8, 0.8]} position={[column.position.x, 0, column.position.z]} />
-              </group>
+            <Clone name='column' object={columns} inject={<meshStandardMaterial roughnessMap={columnRoughness} {...textureProps} />} />
+            {columnColliders.children.map((collider, index) => (
+              <CuboidCollider key={index} args={[1, 1, 1]} position={collider.position.toArray()} />
             ))}
           </RigidBody>
           {/* ----------- FRAMES ------------ */}
@@ -84,44 +72,9 @@ const Scene = () => {
       <Environment frames={1} path='textures/equirect' />
       <OrbitControls makeDefault />
       <Sparkles count={800} scale={15} size={0.5} speed={0.6} position-y={5} />
-      <Sky distance={200} sunPosition={[-0.4, 0.2, 0]} />
-      <ambientLight color={"#fff"} />
-      <SpotLight
-        visible={true}
-        color={"#fff"}
-        castShadow
-        position={[-5, 45, -10]}
-        distance={50}
-        angle={0.05}
-        anglePower={5.05}
-        radiusTop={0}
-        radiusBottom={7}
-        attenuation={60}
-      />
-      <SpotLight
-        visible={true}
-        color={"#fff"}
-        castShadow
-        position={[-5, 45, -10]}
-        distance={50}
-        angle={0.05}
-        anglePower={3}
-        radiusTop={0}
-        radiusBottom={5}
-        attenuation={50}
-      />
-       <SpotLight
-        visible={true}
-        color={"#fff"}
-        castShadow
-        position={[-5, 45, -10]}
-        distance={50}
-        angle={0.05}
-        anglePower={3}
-        radiusTop={0}
-        radiusBottom={3}
-        attenuation={50}
-      />
+      <Sky distance={200} sunPosition={[-0.2, 0.5, 0]} />
+      <ambientLight color={"#fff9ec"} intensity={1} />
+      <Lightrays />
     </>
   );
 };
