@@ -1,5 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Clone, useTexture, Sky, Sparkles, Environment } from "@react-three/drei";
+import { OrbitControls, useGLTF, Clone, useTexture, Sky, Sparkles, Environment, Loader } from "@react-three/drei";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Frames, Walls, Lightrays } from "./components";
@@ -89,6 +89,7 @@ const App = () => {
           <Scene />
         </XR>
       </Canvas>
+      <Loader />
     </>
   );
 };

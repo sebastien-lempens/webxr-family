@@ -17,6 +17,7 @@ function useGamepad() {
     rotation: new Euler(),
     walkSpeed: 6,
     rotationAngle: MathUtils.degToRad(25),
+    //rotationAngle: 0.0085,
   };
 
   const gamePadPositionRef = useRef(userData.position);
@@ -41,6 +42,8 @@ function useGamepad() {
       }
 
       if (rx < -CONTROLLER_X_SENSITIVITY || rx > CONTROLLER_X_SENSITIVITY) {
+        //gamePadRotationRef.current.y -= rx * userData.rotationAngle;
+
         if (headsetData.activeAngle) {
           gamePadRotationRef.current.y -= Math.sign(rx) * userData.rotationAngle;
           headsetData.activeAngle = false;
