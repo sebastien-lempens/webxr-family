@@ -3,7 +3,8 @@ import { OrbitControls, useGLTF, Clone, useTexture, Sky, Sparkles, Environment, 
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { VRButton, XR, Controllers } from "@react-three/xr";
 import { Player, Frames, Walls, Lightrays } from "./components";
-import { DoubleSide } from "three";
+import { ColorManagement, DoubleSide, LinearSRGBColorSpace, SRGBColorSpace } from "three";
+import { Suspense } from "react";
 const Scene = () => {
   const { nodes } = useGLTF("scene.glb");
   const { gl } = useThree();
@@ -24,7 +25,7 @@ const Scene = () => {
     side: DoubleSide,
   };
   gl.toneMapping = 1;
-  gl.toneMappingExposure = 2.6;
+  gl.toneMappingExposure = 1.8;
 
   return (
     <>
@@ -57,7 +58,10 @@ const Scene = () => {
           {/* ----------- ROOF ------------ */}
           <Clone object={roof} inject={<meshStandardMaterial roughnessMap={roofRoughness} {...textureProps} />} />
           {/* ----------- LETTERS ------------ */}
-          <Clone object={letters} inject={<meshStandardMaterial envMapIntensity={2} roughness={0} metalness={1} {...textureProps} />} />
+          <Clone
+            object={letters}
+            inject={<meshStandardMaterial envMapIntensity={2} roughness={0.01} metalness={0.5} {...textureProps} />}
+          />
           {/* ----------- COLUMNS ------------ */}
           <RigidBody type='fixed' colliders={false}>
             <Clone name='column' object={columns} inject={<meshStandardMaterial roughnessMap={columnRoughness} {...textureProps} />} />
@@ -71,9 +75,9 @@ const Scene = () => {
       </Physics>
       <Environment frames={1} path='textures/equirect' />
       <OrbitControls makeDefault />
-      <Sparkles count={800} scale={15} size={0.5} speed={0.6} position-y={5} />
+      <Sparkles count={1200} scale={30} size={0.75} speed={0.6} position-y={5} />
       <Sky distance={200} sunPosition={[-0.2, 0.5, 0]} />
-      <ambientLight color={"#fff9ec"} intensity={1} />
+      <ambientLight intensity={0.3} />
       <Lightrays />
     </>
   );
@@ -86,7 +90,9 @@ const App = () => {
       <Canvas gl={{ localClippingEnabled: true }}>
         <XR>
           <Controllers />
-          <Scene />
+          <Suspense fallback={null}>
+            <Scene />
+          </Suspense>
         </XR>
       </Canvas>
       <Loader />
